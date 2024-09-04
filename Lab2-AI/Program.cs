@@ -9,23 +9,27 @@ using Newtonsoft.Json.Linq;
 using System.Threading;
 using System.Linq;
 using System.Drawing;
+using Microsoft.Extensions.Configuration;
 
 namespace ComputerVisionQuickstart
 {
     class Program
     {
-        // Add your Computer Vision key and endpoint
-        static string key = Environment.GetEnvironmentVariable("VISION_KEY");
-        static string endpoint = Environment.GetEnvironmentVariable("VISION_ENDPOINT");
 
         static void Main(string[] args)
         {
+
+            // Add your Computer Vision key and endpoint
+            IConfigurationBuilder builder = new ConfigurationBuilder().AddJsonFile("appsettings.json");
+            IConfigurationRoot configuration = builder.Build();
+            string cogSvcKey = configuration["CognitiveServiceKey"];
+            string cogSvcEndpoint = configuration["CognitiveServicesEndpoint"];
 
             Console.WriteLine("Please enter a valid URL image to be analyzed. Type 'quit' to exit");
             Console.WriteLine();
 
             // Create a client
-            ComputerVisionClient client = Authenticate(endpoint, key);
+            ComputerVisionClient client = Authenticate(cogSvcEndpoint, cogSvcKey);
             
             while (true) 
             {
@@ -85,7 +89,7 @@ namespace ComputerVisionQuickstart
             ImageAnalysis results = await client.AnalyzeImageAsync(imageUrl, visualFeatures: features);
 
 
-            // Image description and their confidence score
+            // Image description
             Console.WriteLine("Description:");
             foreach (var caption in results.Description.Captions)
             {
